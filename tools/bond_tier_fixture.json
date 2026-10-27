@@ -1,0 +1,212 @@
+{
+  "_note": "Frozen 2026-09-13. The nine materialised bond-tier rows that portfolio_templates.csv carried before with_bonds() synthesis replaced them, together with the base each was derived from. SELF-CONTAINED ON PURPOSE: the test that reads this must not depend on the live library, so editing a base portfolio can never break it. Never re-bless \u2014 it is a record of what the rows WERE, not a snapshot of what they would be now.",
+  "cases": [
+    {
+      "tier_id": "240",
+      "base_id": "140",
+      "bond_pct": 0.05,
+      "sleeve": "core",
+      "base": {
+        "VOO": 0.41,
+        "COST": 0.05,
+        "AVUV": 0.12,
+        "AVDE": 0.135,
+        "AVEM": 0.09,
+        "AVDV": 0.045,
+        "AVEE": 0.03,
+        "VFMO": 0.12
+      },
+      "expected": {
+        "VOO": 0.3895,
+        "COST": 0.0475,
+        "AVUV": 0.114,
+        "AVDE": 0.12825,
+        "AVEM": 0.0855,
+        "AVDV": 0.04275,
+        "AVEE": 0.0285,
+        "BND": 0.03,
+        "JPLD": 0.0125,
+        "JPST": 0.0075,
+        "VFMO": 0.114
+      }
+    },
+    {
+      "tier_id": "340",
+      "base_id": "140",
+      "bond_pct": 0.1,
+      "sleeve": "core",
+      "base": {
+        "VOO": 0.41,
+        "COST": 0.05,
+        "AVUV": 0.12,
+        "AVDE": 0.135,
+        "AVEM": 0.09,
+        "AVDV": 0.045,
+        "AVEE": 0.03,
+        "VFMO": 0.12
+      },
+      "expected": {
+        "VOO": 0.369,
+        "COST": 0.045,
+        "AVUV": 0.108,
+        "AVDE": 0.1215,
+        "AVEM": 0.081,
+        "AVDV": 0.0405,
+        "AVEE": 0.027,
+        "BND": 0.06,
+        "JPLD": 0.025,
+        "JPST": 0.015,
+        "VFMO": 0.108
+      }
+    },
+    {
+      "tier_id": "540",
+      "base_id": "140",
+      "bond_pct": 0.2,
+      "sleeve": "core",
+      "base": {
+        "VOO": 0.41,
+        "COST": 0.05,
+        "AVUV": 0.12,
+        "AVDE": 0.135,
+        "AVEM": 0.09,
+        "AVDV": 0.045,
+        "AVEE": 0.03,
+        "VFMO": 0.12
+      },
+      "expected": {
+        "VOO": 0.328,
+        "COST": 0.04,
+        "AVUV": 0.096,
+        "AVDE": 0.108,
+        "AVEM": 0.072,
+        "AVDV": 0.036,
+        "AVEE": 0.024,
+        "BND": 0.12,
+        "JPLD": 0.05,
+        "JPST": 0.03,
+        "VFMO": 0.096
+      }
+    },
+    {
+      "tier_id": "245",
+      "base_id": "145",
+      "bond_pct": 0.05,
+      "sleeve": "vanguard",
+      "base": {
+        "VOO": 0.41,
+        "COST": 0.05,
+        "VEA": 0.135,
+        "VWO": 0.12,
+        "VSS": 0.045,
+        "VFMO": 0.12,
+        "VBR": 0.12
+      },
+      "expected": {
+        "VOO": 0.3895,
+        "COST": 0.0475,
+        "VEA": 0.12825,
+        "VWO": 0.114,
+        "VSS": 0.04275,
+        "BND": 0.03,
+        "VFMO": 0.114,
+        "VBR": 0.114,
+        "VUSB": 0.0075,
+        "BSV": 0.0125
+      }
+    },
+    {
+      "tier_id": "345",
+      "base_id": "145",
+      "bond_pct": 0.1,
+      "sleeve": "vanguard",
+      "base": {
+        "VOO": 0.41,
+        "COST": 0.05,
+        "VEA": 0.135,
+        "VWO": 0.12,
+        "VSS": 0.045,
+        "VFMO": 0.12,
+        "VBR": 0.12
+      },
+      "expected": {
+        "VOO": 0.369,
+        "COST": 0.045,
+        "VEA": 0.1215,
+        "VWO": 0.108,
+        "VSS": 0.0405,
+        "BND": 0.06,
+        "VFMO": 0.108,
+        "VBR": 0.108,
+        "VUSB": 0.015,
+        "BSV": 0.025
+      }
+    },
+    {
+      "tier_id": "545",
+      "base_id": "145",
+      "bond_pct": 0.2,
+      "sleeve": "vanguard",
+      "base": {
+        "VOO": 0.41,
+        "COST": 0.05,
+        "VEA": 0.135,
+        "VWO": 0.12,
+        "VSS": 0.045,
+        "VFMO": 0.12,
+        "VBR": 0.12
+      },
+      "expected": {
+        "VOO": 0.328,
+        "COST": 0.04,
+        "VEA": 0.108,
+        "VWO": 0.096,
+        "VSS": 0.036,
+        "BND": 0.12,
+        "VFMO": 0.096,
+        "VBR": 0.096,
+        "VUSB": 0.03,
+        "BSV": 0.05
+      }
+    },
+    {
+      "tier_id": "202",
+      "base_id": "102",
+      "bond_pct": 0.05,
+      "sleeve": "bnd_only",
+      "base": {
+        "VT": 1.0
+      },
+      "expected": {
+        "BND": 0.05,
+        "VT": 0.95
+      }
+    },
+    {
+      "tier_id": "302",
+      "base_id": "102",
+      "bond_pct": 0.1,
+      "sleeve": "bnd_only",
+      "base": {
+        "VT": 1.0
+      },
+      "expected": {
+        "BND": 0.1,
+        "VT": 0.9
+      }
+    },
+    {
+      "tier_id": "502",
+      "base_id": "102",
+      "bond_pct": 0.2,
+      "sleeve": "bnd_only",
+      "base": {
+        "VT": 1.0
+      },
+      "expected": {
+        "BND": 0.2,
+        "VT": 0.8
+      }
+    }
+  ]
+}

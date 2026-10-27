@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monte Carlo Data Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f6f7f5; --surface: #ffffff; --fg: #1d2421; --muted: #5c6862;
+  --rule: #d9ded9; --accent: #2f6b55; --accent-soft: #e3eee8;
+  --display: "Newsreader", Georgia, serif;
+  --body: "Public Sans", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121614; --surface: #1a201d; --fg: #e4e9e6; --muted: #98a59e;
+  --rule: #2c3530; --accent: #7cc4a5; --accent-soft: #1f2e27; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121614; --surface: #1a201d; --fg: #e4e9e6; --muted: #98a59e;
+  --rule: #2c3530; --accent: #7cc4a5; --accent-soft: #1f2e27; color-scheme: dark }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 1180px; margin: 0 auto; padding-block: 40px 64px; display: grid; gap: 48px; }
+header { display: grid; gap: 12px; max-width: 68ch; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 5vw, 44px); line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 26px; line-height: 1.2; margin: 0; text-wrap: balance; }
+p { margin: 0; color: var(--muted); }
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--accent-soft); color: var(--fg); padding: 1px 5px; border-radius: 3px; }
+nav { display: flex; flex-wrap: wrap; gap: 8px; }
+nav a { font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; border: 1px solid var(--rule); padding: 5px 12px; border-radius: 999px; }
+nav a:hover, nav a:focus-visible { background: var(--accent-soft); outline: none; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 16px; scroll-margin-top: 16px; }
+.head { display: grid; gap: 6px; max-width: 68ch; }
+.diagram { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; overflow-x: auto; min-width: 0; }
+.diagram pre { margin: 0; }
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+.key { display: grid; gap: 6px; align-content: start; border-top: 2px solid var(--accent); padding-top: 12px; }
+.key h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.key p { font-size: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--muted); }
+.legend span b { font-family: var(--mono); font-weight: 500; color: var(--fg); margin-right: 6px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+<header><span class="eyebrow">Monte Carlo Analysis · v3.4</span><h1>Monte Carlo Data Map</h1><p>How the simulation's data fits together. There is no database: every entity is a file, a CSV row, a key in a JSON record, or a registry in code, and each diagram's comments say which.</p><nav><a href="#overview">Overview</a><a href="#market-layer">Market layer</a><a href="#plan-portfolio-and-run">Plan, portfolio and run</a><a href="#analysis-layer">Analysis layer</a><a href="#what-holds-it-together">What holds it together</a></nav><div class="legend"><span><b>||--||</b>exactly one</span><span><b>||--|{</b>one or more</span><span><b>||--o{</b>zero or more</span><span><b>}o--o{</b>many to many</span></div></header>
+<section id="overview"><div class="head"><span class="eyebrow">27 entities · 30 relationships</span><h2>Overview</h2><p>All 27 entities without their attributes. Each layer below repeats its part with attributes and the file or registry it lives in.</p></div><div class="diagram"><pre class="mermaid">
+erDiagram
+    PARAMETER_SET ||--|{ TICKER : &quot;describes 27&quot;
+    PARAMETER_SET ||--|| MARKET_REGIME : &quot;carries&quot;
+    PARAMETER_SET ||--|{ CORRELATION_MATRIX : &quot;writes&quot;
+    TICKER ||--|{ SOURCE_SERIES : &quot;spliced from&quot;
+    TICKER ||--|{ REGIME_PARAMS : &quot;has 3&quot;
+    TICKER ||--o{ LOADING : &quot;loads on&quot;
+    FACTOR_PREMIUM ||--o{ LOADING : &quot;paid through&quot;
+    MARKET_REGIME ||--|{ CORRELATION_MATRIX : &quot;selects&quot;
+    INVESTOR ||--|{ ACCOUNT : &quot;holds 5&quot;
+    INVESTOR ||--|| SOCIAL_SECURITY : &quot;claims&quot;
+    PORTFOLIO ||--|{ WEIGHT : &quot;sums to 1.0&quot;
+    TICKER ||--o{ WEIGHT : &quot;held at&quot;
+    STRATEGY ||--|{ WAYPOINT : &quot;steps through&quot;
+    WAYPOINT }o--|| PORTFOLIO : &quot;holds&quot;
+    RUN_SPEC ||--|{ STRATEGY : &quot;resolves to&quot;
+    RUN_SPEC }o--|| WITHDRAWAL_POLICY : &quot;uses&quot;
+    RUN_RECORD ||--|| RUN_SPEC : &quot;replays&quot;
+    RUN_RECORD ||--|| PROVENANCE : &quot;snapshots&quot;
+    PROVENANCE }o--|| PARAMETER_SET : &quot;copies version of&quot;
+    PROVENANCE }o--|| INVESTOR : &quot;copies facts of&quot;
+    RUN_RECORD ||--|{ RESULT : &quot;results[policy][strategy]&quot;
+    RESULT }o--|| STRATEGY : &quot;for&quot;
+    RESULT }o--|| WITHDRAWAL_POLICY : &quot;under&quot;
+    RESULT ||--|{ PATH : &quot;computed over&quot;
+    RUN_RECORD ||--o{ RETURN_VIEW_SCORE : &quot;keeps&quot;
+    RETURN_VIEW ||--o{ RETURN_VIEW_SCORE : &quot;scored in&quot;
+    SENSITIVITY_DIM ||--|{ SWEEP_POINT : &quot;one per value&quot;
+    PLAN_CHOICE ||--o{ RUN_SPEC : &quot;compare_choice&quot;
+    FINDING }o--o{ RUN_RECORD : &quot;cites&quot;
+    FINDING }o--o{ SWEEP_POINT : &quot;cites&quot;
+</pre></div></section>
+<section id="market-layer"><div class="head"><span class="eyebrow">8 entities · 10 relationships</span><h2>Market layer</h2><p>Regenerated each quarter by <code>data_collection_regime_model.py</code> into <code>output/</code>. The ticker list sets the order of every matrix row and every random draw.</p></div><div class="diagram"><pre class="mermaid">
+erDiagram
+    PARAMETER_SET {
+        string version &quot;output/ticker_parameters_regimes_v8.json metadata&quot;
+        date last_updated
+        int ticker_count &quot;27, = len(loaders.MODEL_TICKERS)&quot;
+        map proxy_scores &quot;corr, beta, TE, months used per proxy&quot;
+        map tips_real_yields
+    }
+    TICKER {
+        string ticker PK &quot;order of loaders.MODEL_TICKERS = draw position&quot;
+        float expected_return &quot;rf + sum(loading x premium), nominal&quot;
+        float base_volatility
+        float parameter_std &quot;epistemic band; 0.25x vol for single stocks&quot;
+        date history_start
+        date history_end
+        int history_months &quot;may only grow (check_parameter_drift)&quot;
+    }
+    SOURCE_SERIES {
+        string ticker FK
+        string source &quot;Ken French, AQR, yfinance proxy, actual&quot;
+        string blend &quot;e.g. DFWIX = 78% DFIEX + 22% DFCEX&quot;
+        date from
+        date to
+    }
+    REGIME_PARAMS {
+        string ticker FK
+        string regime PK &quot;low, medium, high&quot;
+        float volatility &quot;realised vol of months in the bucket&quot;
+        matrix transitions &quot;3x3, unconditional&quot;
+        matrix transitions_by_market &quot;3x3 per market regime, shrunk 10 pseudo-counts&quot;
+        int regime_months
+    }
+    FACTOR_PREMIUM {
+        string region PK &quot;us, dev, emg&quot;
+        string factor PK &quot;mkt_rf, smb, hml, rmw, cma, mom&quot;
+        float premium &quot;factors.PREMIA&quot;
+        float se &quot;factors.PREMIUM_SE&quot;
+        string window &quot;factors.PREMIUM_WINDOW, each its own&quot;
+        matrix premium_corr &quot;factors.PREMIUM_CORR, premium x premium&quot;
+    }
+    LOADING {
+        string ticker FK
+        string factor FK
+        float beta &quot;fitted on the actual fund, not the splice&quot;
+    }
+    MARKET_REGIME {
+        string proxy &quot;market proxy, 12-month vol&quot;
+        float p30_cut
+        float p70_cut
+        matrix transitions &quot;its own Markov chain&quot;
+    }
+    CORRELATION_MATRIX {
+        string regime PK &quot;baseline, low, medium, high&quot;
+        string window PK &quot;full, w35 (MC_CORR_WINDOW)&quot;
+        file path &quot;output/correlation_&lt;regime&gt;_27[_w35].npy&quot;
+        matrix values &quot;27x27, PSD via near_psd_higham&quot;
+    }
+
+    PARAMETER_SET ||--|{ TICKER : &quot;describes&quot;
+    PARAMETER_SET ||--|| MARKET_REGIME : &quot;carries&quot;
+    PARAMETER_SET ||--|{ CORRELATION_MATRIX : &quot;writes&quot;
+    TICKER ||--|{ SOURCE_SERIES : &quot;spliced from&quot;
+    TICKER ||--|{ REGIME_PARAMS : &quot;has 3&quot;
+    TICKER ||--o{ LOADING : &quot;loads on&quot;
+    FACTOR_PREMIUM ||--o{ LOADING : &quot;paid through&quot;
+    MARKET_REGIME ||--|{ CORRELATION_MATRIX : &quot;selects by regime&quot;
+    MARKET_REGIME ||--|{ REGIME_PARAMS : &quot;conditions transitions&quot;
+    CORRELATION_MATRIX }|--|{ TICKER : &quot;rows and columns&quot;
+</pre></div></section>
+<section id="plan-portfolio-and-run"><div class="head"><span class="eyebrow">14 entities · 15 relationships</span><h2>Plan, portfolio and run</h2><p>Your facts come from <code>config/investor.json</code> and portfolios from <code>portfolio_templates.csv</code>. A run resolves them into strategies and writes one record to <code>output/runs/</code>.</p></div><div class="diagram"><pre class="mermaid">
+erDiagram
+    INVESTOR {
+        int age &quot;config/investor.json&quot;
+        int plan_to_age &quot;95&quot;
+        int retirement_age
+        int contributions_measured_at_age
+        int time_horizon_years &quot;derived: plan_to_age - age&quot;
+        float initial_value &quot;derived: sum of balances&quot;
+    }
+    ACCOUNT {
+        string kind PK &quot;401k_trad, 401k_roth, roth_ira, hsa, taxable&quot;
+        float balance
+        float annual_amount
+        float growth_rate
+        int stop_age
+        string tax &quot;read by tools/tax_estimate.py, not the engine&quot;
+    }
+    SOCIAL_SECURITY {
+        float annual_at_fra
+        int claim_age
+        float benefit_scale &quot;share of scheduled benefit assumed paid&quot;
+    }
+    PORTFOLIO {
+        string id PK &quot;portfolio_templates.csv row; archive.csv not runnable&quot;
+        float bond_pct &quot;derived columns via compute_derived()&quot;
+        float us_pct
+        float dm_share
+        string tilt_family
+        int n_funds
+        float max_single_fund
+    }
+    WEIGHT {
+        string portfolio_id FK
+        string ticker FK
+        float weight &quot;27 columns per row&quot;
+    }
+    STRATEGY {
+        string key PK &quot;e.g. 168&gt;168+30:bnd_only@60&gt;168@70 (montecarlo/glide.py)&quot;
+    }
+    WAYPOINT {
+        string strategy_key FK
+        int seq
+        string portfolio_id FK &quot;base portfolio&quot;
+        float sleeve_pct &quot;synthesised bond sleeve, optional&quot;
+        string sleeve_fund &quot;bnd_only, stip_only, vgit_only...&quot;
+        int from_age &quot;steps, never interpolated&quot;
+    }
+    WITHDRAWAL_POLICY {
+        string policy PK &quot;constant_real, fixed_pct, guyton_klinger, vpw&quot;
+        string sourcing &quot;pro_rata, excess&quot;
+        float floor
+        string gk_response
+        int start_age
+        float target_real_annual
+    }
+    RUN_SPEC {
+        string mode &quot;config/runs.json last, or --spec&quot;
+        list portfolios
+        list custom &quot;glide schedules&quot;
+        string policy FK
+        float spend
+        int search_sims
+        int verify_sims
+        string compare_choice &quot;optional&quot;
+        bool return_views &quot;optional&quot;
+        map social_security &quot;optional override&quot;
+    }
+    RUN_RECORD {
+        datetime timestamp PK &quot;output/runs/run_&lt;timestamp&gt;.json&quot;
+        map config &quot;resolved engine config&quot;
+    }
+    PROVENANCE {
+        string parameters_version
+        string mu_method
+        float premium_scale
+        float premium_haircut
+        string param_errors &quot;shared, independent&quot;
+        float single_stock_edge
+        int corr_window_years
+        float inflation
+        float rf_real
+        string adequacy &quot;window, thirds, lifetime&quot;
+        string scoring_version
+        string investor_accounts &quot;fingerprint&quot;
+        int ss_claim_age
+    }
+    RESULT {
+        string policy FK
+        string strategy_key FK
+        float spend &quot;solved PLAN LEVEL, not a forecast&quot;
+        float level_se
+        bool converged
+        float success_rate
+        float depletion_rate
+        float median_realised &quot;rank on this&quot;
+        float p10_realised
+        list spend_pctiles
+        float worst_cut
+        float median_bequest
+    }
+    PATH {
+        int seed &quot;not persisted; same seeds across strategies&quot;
+        map epistemic_draw &quot;once per path, shared through premia&quot;
+        list monthly_regimes &quot;per ticker plus market&quot;
+        matrix returns &quot;27 wide, read by position&quot;
+    }
+
+    INVESTOR ||--|{ ACCOUNT : &quot;holds 5&quot;
+    INVESTOR ||--|| SOCIAL_SECURITY : &quot;claims&quot;
+    PORTFOLIO ||--|{ WEIGHT : &quot;sums to 1.0&quot;
+    WEIGHT }o--|| TICKER : &quot;of&quot;
+    STRATEGY ||--|{ WAYPOINT : &quot;steps through&quot;
+    WAYPOINT }o--|| PORTFOLIO : &quot;holds&quot;
+    RUN_SPEC ||--|{ STRATEGY : &quot;resolves to&quot;
+    RUN_SPEC }o--|| WITHDRAWAL_POLICY : &quot;uses&quot;
+    RUN_RECORD ||--|| RUN_SPEC : &quot;replays&quot;
+    RUN_RECORD ||--|| PROVENANCE : &quot;snapshots&quot;
+    PROVENANCE }o--|| INVESTOR : &quot;copies facts of&quot;
+    RUN_RECORD ||--|{ RESULT : &quot;results[policy][strategy]&quot;
+    RESULT }o--|| STRATEGY : &quot;for&quot;
+    RESULT }o--|| WITHDRAWAL_POLICY : &quot;under&quot;
+    RESULT ||--|{ PATH : &quot;computed over&quot;
+</pre></div></section>
+<section id="analysis-layer"><div class="head"><span class="eyebrow">9 entities · 7 relationships</span><h2>Analysis layer</h2><p>The tools that fan out to many evaluations. Sweep points are printed but not saved. Return-view scores are saved inside the run record.</p></div><div class="diagram"><pre class="mermaid">
+erDiagram
+    SENSITIVITY_DIM {
+        string name PK &quot;tools/sensitivity.DIMENSIONS, 16&quot;
+        string group &quot;returns, cash, inflation, confidence, life, plan&quot;
+        string kind &quot;numeric (has a span), named (no span)&quot;
+        string env &quot;e.g. MC_PREMIUM_SCALE&quot;
+        string default_values
+    }
+    SWEEP_POINT {
+        string dimension FK
+        string value
+        string verdict &quot;moves LEVEL or RANKING; printed, not persisted&quot;
+    }
+    RETURN_VIEW {
+        string name PK &quot;return_views.VIEWS, 5&quot;
+        map env &quot;set in a child process; workers re-import&quot;
+    }
+    RETURN_VIEW_SCORE {
+        string view FK
+        string strategy_key FK
+        float regret &quot;vs best strategy in that view&quot;
+        bool minimax_pick
+    }
+    PLAN_CHOICE {
+        string key PK &quot;run.PLAN_CHOICES: retirement_age, ss_claim_age, contributions&quot;
+        string label
+    }
+    FINDING {
+        string id &quot;ledger entry id, e.g. N10, N11&quot;
+        date measured
+        string claim
+    }
+
+    SENSITIVITY_DIM ||--|{ SWEEP_POINT : &quot;one per value&quot;
+    RETURN_VIEW ||--o{ RETURN_VIEW_SCORE : &quot;scored in&quot;
+    RUN_RECORD ||--o{ RETURN_VIEW_SCORE : &quot;keeps summary&quot;
+    RETURN_VIEW_SCORE }o--|| STRATEGY : &quot;for&quot;
+    PLAN_CHOICE ||--o{ RUN_SPEC : &quot;compare_choice&quot;
+    FINDING }o--o{ RUN_RECORD : &quot;cites&quot;
+    FINDING }o--o{ SWEEP_POINT : &quot;cites&quot;
+</pre></div></section>
+<section id="what-holds-it-together"><div class="head"><span class="eyebrow">4 points</span><h2>What holds it together</h2></div><div class="keys"><div class="key"><h3>MODEL_TICKERS is the root key</h3><p>Correlation order, CSV columns, JSON keys and the position of each random draw all follow it. <code>tools/check_consistency.py</code> checks that they agree.</p></div><div class="key"><h3>The strategy key is the glide</h3><p>A key such as <code>168&gt;168+30:bnd_only@60&gt;168@70</code> spells out the waypoints and also indexes <code>results</code>, so there is no separate glide table.</p></div><div class="key"><h3>Provenance copies, it does not reference</h3><p>The investor file and the parameters can change after a run. The record keeps the values that run used, which is how <code>run.py --diff</code> explains a change.</p></div><div class="key"><h3>Paths are never stored</h3><p>Pairing still rests on them. Every result in a run, and every return view, uses the same seeds and draws across all 27 tickers.</p></div></div></section>
+<footer>Source: <code>docs/ERD.md</code>. Built from the parameters JSON, <code>config/investor.json</code>, <code>portfolio_templates.csv</code> and <code>output/runs/</code> on 2026-10-25.</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad: true, theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'});</script>
+</body>
+</html>

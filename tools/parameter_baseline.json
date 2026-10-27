@@ -1,0 +1,267 @@
+{
+  "correlations": {
+    "baseline": {
+      "mean_abs": 0.5861761268151894
+    },
+    "high": {
+      "mean_abs": 0.6706309501299418
+    },
+    "low": {
+      "mean_abs": 0.4729113479001051
+    },
+    "medium": {
+      "mean_abs": 0.5607380135449552
+    }
+  },
+  "last_updated": "2026-10-26",
+  "market_regime": {
+    "high": 0.2050793410055333,
+    "low": 0.090373329793361,
+    "medium": 0.1478989761231648
+  },
+  "tickers": {
+    "AVDE": {
+      "base_volatility": 0.1520722547547983,
+      "expected_return": 0.08156128636083199,
+      "history_months": 253,
+      "parameter_std": 0.014,
+      "regime_high": 0.2570026840570456,
+      "regime_low": 0.10355148329070643,
+      "regime_medium": 0.14922280090401038
+    },
+    "AVDV": {
+      "base_volatility": 0.17295900001557651,
+      "expected_return": 0.09894519454907566,
+      "history_months": 382,
+      "parameter_std": 0.018,
+      "regime_high": 0.24453524615055822,
+      "regime_low": 0.11613489786081019,
+      "regime_medium": 0.15875208708338812
+    },
+    "AVEE": {
+      "base_volatility": 0.17064880071854946,
+      "expected_return": 0.09156612540488913,
+      "history_months": 240,
+      "parameter_std": 0.025,
+      "regime_high": 0.32567386915242486,
+      "regime_low": 0.12081881003485577,
+      "regime_medium": 0.1624864198596522
+    },
+    "AVEM": {
+      "base_volatility": 0.1730425040870844,
+      "expected_return": 0.10477624156472469,
+      "history_months": 258,
+      "parameter_std": 0.022,
+      "regime_high": 0.3039964213934482,
+      "regime_low": 0.13307128247149944,
+      "regime_medium": 0.1660444388061051
+    },
+    "AVLV": {
+      "base_volatility": 0.1584807532776022,
+      "expected_return": 0.12324232933194035,
+      "history_months": 646,
+      "parameter_std": 0.0135,
+      "regime_high": 0.22871885647285337,
+      "regime_low": 0.09302525462453977,
+      "regime_medium": 0.14924369855922756
+    },
+    "AVUV": {
+      "base_volatility": 0.21342538596925392,
+      "expected_return": 0.15398473419847755,
+      "history_months": 759,
+      "parameter_std": 0.02,
+      "regime_high": 0.2797681168145194,
+      "regime_low": 0.11840245512863336,
+      "regime_medium": 0.1756836432769071
+    },
+    "BND": {
+      "base_volatility": 0.04601416940709171,
+      "expected_return": 0.04977426536527794,
+      "history_months": 478,
+      "parameter_std": 0.006530961735212723,
+      "regime_high": 0.06006520207211167,
+      "regime_low": 0.02887429394499635,
+      "regime_medium": 0.03620066101822614
+    },
+    "BSV": {
+      "base_volatility": 0.020204520543462053,
+      "expected_return": 0.0354578593747753,
+      "history_months": 392,
+      "parameter_std": 0.0035707854535314645,
+      "regime_high": 0.03328201900231538,
+      "regime_low": 0.012985925668548635,
+      "regime_medium": 0.0206006971026074
+    },
+    "COST": {
+      "base_volatility": 0.18921332506389277,
+      "expected_return": 0.18541160858541555,
+      "history_months": 240,
+      "parameter_std": 0.0480656049046369,
+      "regime_high": 0.24868567364319777,
+      "regime_low": 0.12938257547061574,
+      "regime_medium": 0.19141784317353117
+    },
+    "DFWIX": {
+      "base_volatility": 0.1528968665538789,
+      "expected_return": 0.0831773117057485,
+      "history_months": 253,
+      "parameter_std": 0.016,
+      "regime_high": 0.26351474374246137,
+      "regime_low": 0.10494849617363504,
+      "regime_medium": 0.1493985599368327
+    },
+    "JPLD": {
+      "base_volatility": 0.015543802898881924,
+      "expected_return": 0.019367532210121153,
+      "history_months": 203,
+      "parameter_std": 0.0022740888239933467,
+      "regime_high": 0.023762232005153636,
+      "regime_low": 0.007086952862362601,
+      "regime_medium": 0.010393077288573943
+    },
+    "JPST": {
+      "base_volatility": 0.008824754799302972,
+      "expected_return": 0.019335329199322206,
+      "history_months": 203,
+      "parameter_std": 0.0012739772592136607,
+      "regime_high": 0.01282755957090491,
+      "regime_low": 0.002532491903977914,
+      "regime_medium": 0.005412931541049712
+    },
+    "JQUA": {
+      "base_volatility": 0.13339125245933367,
+      "expected_return": 0.07913981462577399,
+      "history_months": 646,
+      "parameter_std": 0.022665610115880985,
+      "regime_high": 0.20205410334918564,
+      "regime_low": 0.09039056726936481,
+      "regime_medium": 0.14203455966888448
+    },
+    "MTUM": {
+      "base_volatility": 0.16359369877703206,
+      "expected_return": 0.13905984536585797,
+      "history_months": 645,
+      "parameter_std": 0.027532238930909208,
+      "regime_high": 0.25152200388617385,
+      "regime_low": 0.10676946312597563,
+      "regime_medium": 0.16986551248136098
+    },
+    "STIP": {
+      "base_volatility": 0.02183868798361245,
+      "expected_return": 0.02008781244511634,
+      "history_months": 241,
+      "parameter_std": 0.003261579896690812,
+      "regime_high": 0.03181432417345345,
+      "regime_low": 0.01195606201467533,
+      "regime_medium": 0.019289088381094055
+    },
+    "VBR": {
+      "base_volatility": 0.17992667656956676,
+      "expected_return": 0.14361680468962484,
+      "history_months": 645,
+      "parameter_std": 0.018,
+      "regime_high": 0.2560946334978805,
+      "regime_low": 0.10023028448603435,
+      "regime_medium": 0.16641787587442972
+    },
+    "VEA": {
+      "base_volatility": 0.14912342284673805,
+      "expected_return": 0.07576130389351521,
+      "history_months": 423,
+      "parameter_std": 0.024136624122688344,
+      "regime_high": 0.22259242880556887,
+      "regime_low": 0.0977635517254707,
+      "regime_medium": 0.14382049602792754
+    },
+    "VFMO": {
+      "base_volatility": 0.17565476958960083,
+      "expected_return": 0.15858526218892252,
+      "history_months": 646,
+      "parameter_std": 0.030101581512742823,
+      "regime_high": 0.2598724882469861,
+      "regime_low": 0.12064105005455503,
+      "regime_medium": 0.1960310003993132
+    },
+    "VGIT": {
+      "base_volatility": 0.04156091155853677,
+      "expected_return": 0.044797431112457126,
+      "history_months": 420,
+      "parameter_std": 0.007247138705655844,
+      "regime_high": 0.06300976190182285,
+      "regime_low": 0.034017123251310316,
+      "regime_medium": 0.0432152463509232
+    },
+    "VOO": {
+      "base_volatility": 0.14019244166247127,
+      "expected_return": 0.11198692587887016,
+      "history_months": 681,
+      "parameter_std": 0.023273234714516526,
+      "regime_high": 0.2050793410055333,
+      "regime_low": 0.090373329793361,
+      "regime_medium": 0.1478989761231648
+    },
+    "VSS": {
+      "base_volatility": 0.15980246901126793,
+      "expected_return": 0.07891872792135798,
+      "history_months": 361,
+      "parameter_std": 0.026023782811441964,
+      "regime_high": 0.24665913221677851,
+      "regime_low": 0.10782897163581893,
+      "regime_medium": 0.14724550250464563
+    },
+    "VT": {
+      "base_volatility": 0.139959475518798,
+      "expected_return": 0.09090436388260438,
+      "history_months": 366,
+      "parameter_std": 0.023658477007579573,
+      "regime_high": 0.2200223231478728,
+      "regime_low": 0.0901094609690772,
+      "regime_medium": 0.14500791507477354
+    },
+    "VTI": {
+      "base_volatility": 0.14425482070471468,
+      "expected_return": 0.11369338724022995,
+      "history_months": 414,
+      "parameter_std": 0.022469854482084144,
+      "regime_high": 0.20681746179481936,
+      "regime_low": 0.0814556060980911,
+      "regime_medium": 0.14255401142292334
+    },
+    "VTV": {
+      "base_volatility": 0.13533699683027536,
+      "expected_return": 0.12027447259928181,
+      "history_months": 646,
+      "parameter_std": 0.015,
+      "regime_high": 0.20279288055719125,
+      "regime_low": 0.08790107327620718,
+      "regime_medium": 0.14076902693361826
+    },
+    "VUSB": {
+      "base_volatility": 0.009220720678661719,
+      "expected_return": 0.024273203189960537,
+      "history_months": 140,
+      "parameter_std": 0.0013831081017992577,
+      "regime_high": 0.012534991283949174,
+      "regime_low": 0.003551979786345701,
+      "regime_medium": 0.00886910978888394
+    },
+    "VWO": {
+      "base_volatility": 0.1627241508556512,
+      "expected_return": 0.08539685779236397,
+      "history_months": 389,
+      "parameter_std": 0.03221609072038101,
+      "regime_high": 0.29888937099320706,
+      "regime_low": 0.12801612559344827,
+      "regime_medium": 0.18865028480470764
+    },
+    "VXUS": {
+      "base_volatility": 0.1458555980075125,
+      "expected_return": 0.07093868325616408,
+      "history_months": 366,
+      "parameter_std": 0.025062606173264442,
+      "regime_high": 0.23223000013291878,
+      "regime_low": 0.10355609740354615,
+      "regime_medium": 0.14991884912502565
+    }
+  }
+}

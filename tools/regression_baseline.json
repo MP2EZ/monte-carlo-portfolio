@@ -1,0 +1,103 @@
+{
+  "n_paths": 300,
+  "time_horizon_years": 10,
+  "stats": {
+    "mean": 283002.9561885541,
+    "median": 253028.09521766886,
+    "p10": 157427.5277053297,
+    "p90": 451641.8065767295,
+    "sortino_median": 0.8083633253099867,
+    "twr_cagr_median": 0.056725486239742606,
+    "monthly_return_mean": 0.005372662520621821
+  },
+  "n_wd_paths": 80,
+  "decumulation": {
+    "constant_real/excess": {
+      "first_year_median": 50000.0,
+      "mean_spend_median": 50000.0,
+      "mean_spend_p10": 50000.0,
+      "last_year_median": 50000.0,
+      "final_median": 2355123.265602935,
+      "depletion_rate": 0.0625
+    },
+    "fixed_pct/excess": {
+      "first_year_median": 50000.0,
+      "mean_spend_median": 61874.09349916711,
+      "mean_spend_p10": 40395.76826408727,
+      "last_year_median": 75906.85400970615,
+      "final_median": 1859776.837425471,
+      "depletion_rate": 0.0
+    },
+    "guyton_klinger/excess": {
+      "first_year_median": 50000.0,
+      "mean_spend_median": 59174.78085144012,
+      "mean_spend_p10": 39442.8899002,
+      "last_year_median": 65887.82750000003,
+      "final_median": 2045292.7102171034,
+      "depletion_rate": 0.0
+    },
+    "vpw/excess": {
+      "first_year_median": 64476.43051643744,
+      "mean_spend_median": 88594.78266666032,
+      "mean_spend_p10": 47855.29121773878,
+      "last_year_median": 109232.10907967304,
+      "final_median": 953675.0248686093,
+      "depletion_rate": 0.0
+    },
+    "guyton_klinger/pro_rata": {
+      "first_year_median": 50000.0,
+      "mean_spend_median": 58792.65075144012,
+      "mean_spend_p10": 38966.3249584,
+      "last_year_median": 70682.72355146479,
+      "final_median": 2147483.735041899,
+      "depletion_rate": 0.0
+    }
+  },
+  "features": {
+    "rebalance": {
+      "final_median": 2032538.2866222751,
+      "mean_spend_median": 59608.600070000015,
+      "mean_spend_p10": 40363.606858,
+      "depletion_rate": 0.0,
+      "partial_mean": 3.775,
+      "full_mean": 5.6875,
+      "traded_mean": 1519181.9534167212
+    },
+    "glide": {
+      "final_median": 1639548.752304041,
+      "mean_spend_median": 55815.62289000001,
+      "mean_spend_p10": 39155.98,
+      "depletion_rate": 0.0,
+      "partial_mean": 3.7,
+      "full_mean": 6.4375,
+      "traded_mean": 1563296.2054038858
+    },
+    "social_security": {
+      "final_median": 3227406.9522829717,
+      "mean_spend_median": 72381.20413030003,
+      "mean_spend_p10": 49868.05512262,
+      "depletion_rate": 0.0,
+      "partial_mean": 4.1375,
+      "full_mean": 6.6875,
+      "traded_mean": 1921191.7059422054
+    },
+    "ltc": {
+      "final_median": 1692276.4518786164,
+      "mean_spend_median": 56597.06791018001,
+      "mean_spend_p10": 37522.782038200006,
+      "depletion_rate": 0.0,
+      "partial_mean": 3.5375,
+      "full_mean": 5.425,
+      "traded_mean": 1425492.1566503155
+    },
+    "shared_errors": {
+      "final_median": 1949086.6704269713,
+      "mean_spend_median": 58120.78290000002,
+      "mean_spend_p10": 38691.024162558,
+      "depletion_rate": 0.0,
+      "partial_mean": 3.675,
+      "full_mean": 5.725,
+      "traded_mean": 1380532.643994167
+    }
+  }
+}

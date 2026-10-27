@@ -1,0 +1,13 @@
+# Monte Carlo Portfolio Analysis — Python dependencies
+# Tested on Python 3.13.7 (any 3.10+ should work).
+# Install:  pip install -r requirements.txt   (from the project root)
+numpy>=2.3.3
+scipy>=1.16.2
+pandas>=2.3.2
+yfinance>=0.2.66
+matplotlib>=3.10.6
+seaborn>=0.13.2
+openpyxl>=3.1.5
+
+# Optional — only for `run.py --ask` (ask.py)
+# anthropic>=1.0
