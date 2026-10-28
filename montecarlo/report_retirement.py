@@ -327,6 +327,12 @@ def _one_plan_note(specs, res, name):
             f"${res[specs[0]]['common']['spend'] / 1e3:,.0f}k/yr plan")
 
 
+def _reads_one_plan(runs, spec, is_grid):
+    """True when the report compares every strategy at one plan: one policy, no
+    plan choice, no grid. The life-stage table and the figure both ask."""
+    return len(runs) == 1 and not spec.get('compare_choice') and not is_grid
+
+
 def _shape_rows(runs, specs, by_policy, spec, labels=None, is_grid=False):
     """The life-stage table's rows, and the plan they were read at.
 
@@ -336,7 +342,7 @@ def _shape_rows(runs, specs, by_policy, spec, labels=None, is_grid=False):
     grid: its IN DETAIL table prints each strategy's own-level run, and the two
     must not give one strategy two lifetime averages.
     """
-    one = len(runs) == 1 and not spec.get('compare_choice') and not is_grid
+    one = _reads_one_plan(runs, spec, is_grid)
     rows = []
     for tag, _, _ in runs:
         res = _at_one_plan(specs, by_policy[tag]) if one else by_policy[tag]
@@ -1997,7 +2003,42 @@ def accumulation_figures(res, specs, portfolios, config, outdir=None):
     return _acc.save_figures(built, outdir, prefix='accumulation')
 
 
-def figures(by_policy, specs, config, outdir=None):
+def _figure_data(by_policy, specs, config, one_plan=False):
+    """What the decumulation figure plots, per strategy, and the plan it is at.
+
+    With `one_plan`, every strategy as its one-plan run saw it — the runs
+    RESULTS, the head-to-head and the life-stage table read. It used to plot
+    each strategy's OWN level beside tables that compared them at one, so the
+    chart and the numbers under it disagreed (103: ~$70k/yr drawn, $149k in
+    the table).
+    """
+    res = by_policy[next(iter(by_policy))]
+    if one_plan:
+        res = _at_one_plan(specs, res)
+    end_age = config['age'] + config['time_horizon_years']
+    series = {}
+    for g in specs:
+        r = res[g]
+        sp = np.asarray(r['spending'], dtype=float)
+        if sp.size == 0:
+            continue
+        ages_d = [a for a in r.get('depletion_ages', []) if a is not None]
+        n = max(len(r.get('depletion_ages', [])), 1)
+        grid = np.arange(r['start_age'], end_age + 1)
+        series[g] = {
+            'ages': np.arange(r['start_age'], r['start_age'] + sp.shape[1]),
+            'median': np.median(sp, axis=0) / 1e3,
+            'p10': np.percentile(sp, 10, axis=0) / 1e3,
+            'p90': np.percentile(sp, 90, axis=0) / 1e3,
+            'depletion_ages': grid,
+            'depleted': [100.0 * sum(1 for a in ages_d if a <= x) / n for x in grid],
+        }
+    note = _one_plan_note(specs, by_policy[next(iter(by_policy))],
+                          lambda g: g) if one_plan else ''
+    return series, note
+
+
+def figures(by_policy, specs, config, outdir=None, one_plan=False):
     """Spending fan chart + depletion curve. Saved, not shown, so a run is
     non-blocking; the tables are the primary output."""
     import matplotlib
@@ -2010,39 +2051,28 @@ def figures(by_policy, specs, config, outdir=None):
     written = []
 
     policy = next(iter(by_policy))
-    res = by_policy[policy]
-    end_age = config['age'] + config['time_horizon_years']
+    series, note = _figure_data(by_policy, specs, config, one_plan=one_plan)
+    bands = len(series) <= 2      # bands only stay legible for one or two strategies
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-    for g in specs:
-        r = res[g]
-        sp = np.asarray(r['spending'], dtype=float)
-        if sp.size == 0:
-            continue
-        ages = np.arange(r['start_age'], r['start_age'] + sp.shape[1])
-        med = np.median(sp, axis=0) / 1e3
-        line, = ax1.plot(ages, med, lw=2, label=g)
-        if len(specs) <= 2:   # bands only stay legible for one or two strategies
-            ax1.fill_between(ages, np.percentile(sp, 10, axis=0) / 1e3,
-                             np.percentile(sp, 90, axis=0) / 1e3,
+    for g, s in series.items():
+        line, = ax1.plot(s['ages'], s['median'], lw=2, label=g)
+        if bands:
+            ax1.fill_between(s['ages'], s['p10'], s['p90'],
                              alpha=0.18, color=line.get_color())
     ax1.set_xlabel('Age'); ax1.set_ylabel('Annual spending ($k, real)')
     ax1.set_title(f'Realised spending — {policy}' +
-                  ('  (band = 10th–90th pct)' if len(specs) <= 2 else ''))
+                  ('  (band = 10th–90th pct)' if bands else ''))
     ax1.legend(fontsize=8); ax1.grid(alpha=0.3)
 
-    for g in specs:
-        r = res[g]
-        ages_d = [a for a in r.get('depletion_ages', []) if a is not None]
-        n = max(len(r.get('depletion_ages', [])), 1)
-        grid_ages = np.arange(r['start_age'], end_age + 1)
-        curve = [100.0 * sum(1 for a in ages_d if a <= x) / n for x in grid_ages]
-        ax2.plot(grid_ages, curve, lw=2, label=g)
+    for g, s in series.items():
+        ax2.plot(s['depletion_ages'], s['depleted'], lw=2, label=g)
     ax2.set_xlabel('Age'); ax2.set_ylabel('Cumulative P(depleted) %')
     ax2.set_title('Depletion by age')
     ax2.legend(fontsize=8); ax2.grid(alpha=0.3)
 
-    fig.suptitle('Decumulation — real 2026 dollars', fontweight='bold')
+    fig.suptitle('Decumulation — real 2026 dollars' + (f' · {note}' if note else ''),
+                 fontweight='bold')
     fig.tight_layout()
     path = outdir / f'decumulation_{stamp}.png'
     fig.savefig(path, dpi=110); plt.close(fig)
@@ -2203,7 +2233,8 @@ def run(spec, specs, portfolios, config, is_grid):
         robustness(by_policy, specs, labels=labels)
         try:
             with instrument.timed('figures'):
-                paths_out = list(figures(by_policy, specs, config))
+                paths_out = list(figures(by_policy, specs, config,
+                                         one_plan=_reads_one_plan(runs, spec, is_grid)))
             for path in paths_out:
                 print(f"\n  figures → {path}")
         except Exception as e:                      # never let plotting kill a run

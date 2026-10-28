@@ -3196,6 +3196,41 @@ def test_the_figures_draw_for_real_and_name_the_real_horizon():
     assert fig3 and all('12-Year' in t for t in fig3), fig3
 
 
+def test_the_decumulation_figure_reads_the_one_plan_runs_the_tables_read():
+    """The figure plotted each strategy at its OWN plan level while every table
+    beside it read all of them at the first strategy's level: on 2026-10-26 the
+    chart showed 103 spending ~$70k/yr where RESULTS said $149k. Across
+    policies the figure keeps each run's own level, as the tables do."""
+    import numpy as np
+    own = np.full((4, 3), 50_000.0)
+    one = np.full((4, 3), 100_000.0)
+    rec = lambda: {'spend': 40_000.0, 'spending': own, 'depletion_ages': [None] * 4,
+                   'start_age': 65,
+                   'common': {'spend': 60_000.0, 'spending': one,
+                              'depletion_ages': [None, None, None, 66], 'start_age': 65}}
+    by_policy = {'guyton_klinger': {'A': rec(), 'B': rec()}}
+    cfg = {'age': 37, 'time_horizon_years': 30}
+    series, note = report_retirement._figure_data(by_policy, ['A', 'B'], cfg, one_plan=True)
+    assert all(np.allclose(series[g]['median'], 100.0) for g in 'AB'), series
+    assert series['A']['depleted'][-1] == 25.0, series['A']['depleted']
+    assert "A's $60k/yr plan" in note, note
+    series, note = report_retirement._figure_data(by_policy, ['A', 'B'], cfg, one_plan=False)
+    assert all(np.allclose(series[g]['median'], 50.0) for g in 'AB'), series
+    assert note == '', note
+
+    # The wiring: a one-policy solved run draws at one plan; a policy
+    # comparison draws each run at its own level.
+    seen, real = [], report_retirement.figures
+    report_retirement.figures = lambda *a, **k: seen.append(k.get('one_plan')) or []
+    try:
+        _smoke('retirement', _figures=[], spend='solve', policy='guyton_klinger')
+        _smoke('retirement', _figures=[], spend='solve', policy='guyton_klinger',
+               compare_policies=['guyton_klinger', 'vpw'])
+    finally:
+        report_retirement.figures = real
+    assert seen == [True, False], seen
+
+
 def test_a_retirement_run_survives_end_to_end():
     """The wiring from a config to a rendered decumulation report.
 

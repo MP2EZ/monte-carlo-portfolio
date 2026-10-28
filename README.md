@@ -148,7 +148,13 @@ gap the paired paths cannot separate from zero:
 Read the `no factors` column: if the factor premia pay nothing, every portfolio
 ties. The tilt costs little if the premia vanish and pays a lot if they do not.
 The full report also breaks spending down by decade of retirement, with a low
-case for each.
+case for each, and draws the same runs:
+
+![Median realised spending by age and cumulative depletion for the four portfolios, all at 140's $68k plan](docs/images/sample_decumulation.png)
+
+Spending rises because `guyton_klinger` raises it as the portfolio grows. The
+right panel is the share of paths that ran out, in percent: at most 1% for any of
+the four.
 
 ## What it has found
 
