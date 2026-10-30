@@ -10,7 +10,7 @@ Monte Carlo portfolio simulation system with regime-switching volatility and par
 retirement-era withdrawals, inverse solver, bootstrap CIs, sensitivity sweeps,
 Social Security, LTC shocks, turnover measurement, `--debug` diagnostics and a
 headless `--spec` runner. 18 active portfolios (18 settled ones in
-`portfolio_archive.csv`). Engine split out of the monolith.
+`portfolios/portfolio_archive.csv`). Engine split out of the monolith.
 
 **Read [docs/RESULTS.md](../docs/RESULTS.md) for the evidence** behind every
 claim in this file — and before re-deriving anything, because most of it has
@@ -36,8 +36,8 @@ session does it the same way.
 The codebase implements a progressive uncertainty model:
 
 1. **Stage 1 (Baseline):** Updated parameters from Phase 1 data collection, fixed volatility
-2. **Stage 2 (Parameter Uncertainty):** + Epistemic uncertainty (estimation error) sampled once per 25-year path
-3. **Stage 3 (Regime-Switching):** + Aleatoric uncertainty (volatility regimes) transitioning annually via Markov chains
+2. **Stage 2 (Parameter Uncertainty):** + Epistemic uncertainty (estimation error) sampled once per path
+3. **Stage 3 (Regime-Switching):** + Aleatoric uncertainty (volatility regimes) transitioning monthly via Markov chains
 
 Each stage builds on the previous, allowing controlled comparison of uncertainty impacts.
 
@@ -59,7 +59,7 @@ is the assumption. A "constant real" withdrawal is therefore literally constant.
 
 ### Key Scripts
 
-- **`data_collection_regime_model.py`**: Unified pipeline - downloads 27 actual tickers + proxies, splices with Ken French/AQR academic data (1963-2025), calculates regime parameters and 4 correlation matrices (27×27). Outputs v8 JSON with embedded metadata. Supports blended proxies (DFWIX = 78% DFIEX + 22% DFCEX; VT = 50% VTSMX + 50% VGTSX).
+- **`data_collection_regime_model.py`**: Unified pipeline - downloads 27 actual tickers + proxies, splices with Ken French/AQR academic data (1963-2026), calculates regime parameters and 4 correlation matrices (27×27). Outputs v8 JSON with embedded metadata. Supports blended proxies (DFWIX = 78% DFIEX + 22% DFCEX; VT = 50% VTSMX + 50% VGTSX).
 
 - **`run.py`**: ⭐ **The way to run this.** Interactive, question-driven: pick the question
   and it derives the portfolios. `python3 run.py` to configure, `python3 run.py --again` to
@@ -137,7 +137,7 @@ is the assumption. A "constant real" withdrawal is therefore literally constant.
   `--diff` compare runs and attribute a change to its cause.
 
 - **`tools/sensitivity.py`**: ⭐ **The single sweep tool.** One registry
-  (`DIMENSIONS`), 16 assumptions, grouped in the menu by WHO CONTROLS THEM —
+  (`DIMENSIONS`), 24 assumptions, grouped in the menu by WHO CONTROLS THEM —
   returns / cash / inflation / confidence / your life are unknowable, `your
   plan` is what you decide. Reports whether an assumption moves the LEVEL or the
   RANKING. Run it bare for the menu; `run.py`'s Market & life assumptions drives
@@ -179,7 +179,7 @@ is the assumption. A "constant real" withdrawal is therefore literally constant.
   by `report_retirement.accumulation_figures`; `Portfolio Analysis.py`, which used to be
   its only caller, has been deleted.
 
-- **`montecarlo/loaders.py`**: Helpers to load JSON parameters + correlation matrices (from `output/`, with staleness warnings) and portfolio templates (from `portfolio_templates.csv`). Comment/blank rows in the CSV are skipped.
+- **`montecarlo/loaders.py`**: Helpers to load JSON parameters + correlation matrices (from `output/`, with staleness warnings) and portfolio templates (from `portfolios/portfolio_templates.csv`). Comment/blank rows in the CSV are skipped.
 
 - **`tools/update_holdings.py`**: Rewrite a single portfolio row in `portfolio_templates.csv` from percent-per-fund input (normalizes to sum 1.0; a fund listed twice — one fund in two accounts — is added). Useful when account placement makes your live allocation a blend. It and the other CSV tools write LF, as the file is committed; csv.writer's CRLF default had turned every one-row edit into a whole-file diff.
 
@@ -187,9 +187,7 @@ is the assumption. A "constant real" withdrawal is therefore literally constant.
 
 ### Correlation System
 
-**Current (Stage 3):** Uses fixed correlation matrix across all volatility regimes
-
-**Current (Phase 3A integrated):**
+Four matrices, one per market regime plus the full history:
 - `correlation_baseline_N.npy` - full-history N×N matrix (N = ticker count, currently 27)
 - `correlation_low_N.npy` - calm market correlations (30% of history)
 - `correlation_medium_N.npy` - normal correlations (40% of history)
@@ -208,24 +206,21 @@ Under the labelling in force the day before, the same data read 0.737 → 0.829.
 
 ### Multiprocessing Strategy
 
-All simulations use Python's `multiprocessing.Pool` with `cpu_count()` workers. Pattern:
-```python
-with Pool(cpu_count()) as pool:
-    results = pool.starmap(simulate_single_path_regimes, args_list)
-```
-
-For production runs: 15K simulations × 4 scenarios = 60K total paths. Each scenario runs sequentially but parallelizes its 15K simulations across all cores (~2.5 min per scenario on 8 cores).
+Paths run on one `multiprocessing.Pool(cpu_count())`, created once and reused
+(`solver._pool`). A solve searches on `solver.SEARCH_SIMS` (400) paths and
+sets the level on `solver.VERIFY_SIMS` (1,500); the runner offers 2x and 4x,
+and `--dry-run` prints the time estimate before anything runs.
 
 ## Common Commands
 
-### ⭐ Portfolio Analysis v3.0 (AUTO-LOADING) ⭐
+### ⭐ The three steps ⭐
 ```bash
 # Step 1: Update parameters with latest market data (quarterly recommended)
 python3 data_collection_regime_model.py
 # Downloads 27 actual tickers + proxies from yfinance + Ken French/AQR data
-# Outputs to output/: ticker_parameters_regimes_v8.json (~15KB) + 4 correlation matrices
+# Outputs to output/: ticker_parameters_regimes_v8.json (~70KB) + 4 correlation matrices
 # Auto-runs the parameter sanity validator at the end
-# Time: ~30-60 seconds
+# Time: about 10 minutes, mostly downloads
 
 # Step 2: Validate (structural + data + behavior gate; also run after any engine edit)
 python3 tools/validate_all.py
@@ -328,7 +323,7 @@ The settled conclusions, in relative terms, are in [docs/RESULTS.md](../docs/RES
 - **`tools/regression_check.py`** - Engine golden master on a synthetic universe (accumulation, decumulation, and one case per feature production turns on: banded rebalancing, a glide switch, Social Security, care costs, shared parameter errors) + determinism + analytic-compounding anchor; `--update` to re-bless the baseline (`tools/regression_baseline.json`), and it refuses to bless a run whose own checks fail.
 - (`tools/_engine.py` was deleted — `montecarlo/engine.py` imports normally, so the importlib shim and
   the module-global monkey-patching it required are gone.)
-- **`tools/validate_all.py`** - Runs consistency + the four validators above in order; the single pre-commit / pre-run gate.
+- **`tools/validate_all.py`** - Runs consistency + the five validators above in order; the single pre-commit / pre-run gate.
 - **`tools/vacuity_sweep.py`** - ⭐ Proves the SUITE can fail. `--static` flags tests
   that cannot fail by construction; `--mutate` guts a function and counts the checks
   that notice; `--subtle` introduces WRONG ANSWERS, which is the class this repo has
@@ -341,17 +336,18 @@ Tools add the project root to `sys.path` and anchor data paths to it, so run the
 **Derived columns:** `portfolio_templates.csv` carries 8 navigation columns after the 27 ticker columns (`bond_pct, us_pct, dm_share, tilt_family, mom_fund, val_fund, n_funds, max_single_fund`), computed from allocations by `compute_derived()` in `montecarlo/loaders.py`. The loader/simulator ignore them (weights are parsed by `MODEL_TICKERS` allowlist); the holdings-update tools auto-refresh them. Re-run `tools/annotate_templates.py` after bulk template edits.
 
 ### Generated Data Files (output/ subdirectory)
-- **`ticker_parameters_regimes_v8.json`** (~15KB) - All 27 ticker parameters with metadata
-- **`correlation_baseline_N.npy`** (~3KB) - Baseline N×N correlation matrix (N = ticker count)
+- **`ticker_parameters_regimes_v8.json`** (~70KB) - All 27 ticker parameters with metadata
+- **`correlation_baseline_N.npy`** (~6KB) - Baseline N×N correlation matrix (N = ticker count)
 - **`correlation_low_N.npy`** - Low volatility regime correlations
 - **`correlation_medium_N.npy`** - Medium volatility regime correlations
 - **`correlation_high_N.npy`** - High volatility regime correlations
 
 ### Reference Data (reference/ subdirectory - static)
-- Ken French CSV files (3 files)
-- AQR Quality Excel file
+- Ken French CSV files (10): the US, developed ex-US and emerging factor sets, and
+  the 25/32-portfolio sorts the factor funds' backfills are blended from
+- AQR Quality Minus Junk Excel file (JQUA's backfill)
 
-**All data files auto-regenerated quarterly by running `data_collection_regime_model.py`**
+**Everything in `output/` is regenerated by running `data_collection_regime_model.py`** (quarterly); `reference/` is refreshed by hand.
 
 ## Technical Concepts
 
@@ -384,10 +380,10 @@ regimes calls October 2008 "medium".
 ### Data Splicing - Key Details
 
 **Multi-stage splicing** for maximum history:
-- **AVUV**: Ken French (1963-1993) + DFSVX (1993-2019) + actual (2019+) = 748+ months
-- **Factor funds** (VTV, AVLV, MTUM, VFMO, JQUA): Ken French (1973+) + actual = 635+ months
+- **AVUV**: Ken French (1963-1993) + DFSVX (1993-2019) + actual (2019+) = ~759 months
+- **Factor funds** (VTV, AVLV, MTUM, VFMO, JQUA): Ken French (1973+) + actual = ~646 months
 - **Standard ETFs**: yfinance proxy + actual = varies by inception
-- **DFWIX**: Blended proxy (78% DFIEX + 22% DFCEX, 2005-2013) + actual (2013+) = ~245 months
+- **DFWIX**: Blended proxy (78% DFIEX + 22% DFCEX, 2005-2013) + actual (2013+) = ~253 months
 - **COST**: Rolling 20-year window (240 months) - NO splicing, actual stock data only
 - **AVEE**: Rolling 20-year window (240 months) - proxy-spliced (DEMSX + actual), early data unrepresentative
 
@@ -415,7 +411,7 @@ Portfolio configurations live in `portfolios/portfolio_templates.csv` (one row p
 ## Important Constraints
 
 1. **Allocation Validation:** All portfolio allocations must sum to exactly 1.0 (enforced in code)
-2. **Ticker Consistency:** The ticker universe is defined ONCE in `loaders.MODEL_TICKERS`; `data_collection_regime_model.py` and `Portfolio Analysis.py` import it (`from loaders import MODEL_TICKERS as TICKERS`). To add/remove a ticker, edit `MODEL_TICKERS`, follow **[docs/RUNBOOK_tickers.md](../docs/RUNBOOK_tickers.md)**, and verify with `python3 tools/check_consistency.py` (confirms the consumers don't redefine the list, and that JSON, correlation dims, CSV columns, and role classification all agree).
+2. **Ticker Consistency:** The ticker universe is defined ONCE in `loaders.MODEL_TICKERS`; `data_collection_regime_model.py` imports it (`from montecarlo.loaders import MODEL_TICKERS as TICKERS`). To add/remove a ticker, edit `MODEL_TICKERS`, follow **[docs/RUNBOOK_tickers.md](../docs/RUNBOOK_tickers.md)**, and verify with `python3 tools/check_consistency.py` (confirms the consumers don't redefine the list, and that JSON, correlation dims, CSV columns, and role classification all agree).
 3. **Correlation Matrix Dimensions:** Must be N×N matching TICKERS list order (N = ticker count)
 4. **Regime Classification:** Only 'low', 'medium', 'high' are valid (case-sensitive)
 5. **Multiprocessing:** Cannot nest Pool() calls - use sequential scenarios with parallel simulations within each

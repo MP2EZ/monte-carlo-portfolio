@@ -601,8 +601,8 @@ more than a point.
 
 ### Monte Carlo Analysis
 **Runtime** scales with paths × strategies × years. `run.py --dry-run` prints
-an estimate before anything runs: two strategies solved at the default 3,000
-verification paths, planned to 95, estimate about 7 minutes.
+an estimate before anything runs: two strategies solved at 3,000 verification
+paths (twice the 1,500 default), planned to 95, estimate about 7 minutes.
 
 **Memory** scales with paths per strategy, since each worker holds its paths'
 monthly balances until they are reduced to percentiles.
