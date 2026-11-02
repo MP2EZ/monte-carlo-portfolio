@@ -48,7 +48,7 @@ footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule)
 </head>
 <body>
 <main>
-<header><span class="eyebrow">Monte Carlo Analysis · v3.4</span><h1>Monte Carlo Data Map</h1><p>How the simulation's data fits together. There is no database: every entity is a file, a CSV row, a key in a JSON record, or a registry in code, and each diagram's comments say which.</p><nav><a href="#overview">Overview</a><a href="#market-layer">Market layer</a><a href="#plan-portfolio-and-run">Plan, portfolio and run</a><a href="#analysis-layer">Analysis layer</a><a href="#what-holds-it-together">What holds it together</a></nav><div class="legend"><span><b>||--||</b>exactly one</span><span><b>||--|{</b>one or more</span><span><b>||--o{</b>zero or more</span><span><b>}o--o{</b>many to many</span></div></header>
+<header><span class="eyebrow">Monte Carlo Analysis · v3.5</span><h1>Monte Carlo Data Map</h1><p>How the simulation's data fits together. There is no database: every entity is a file, a CSV row, a key in a JSON record, or a registry in code, and each diagram's comments say which.</p><nav><a href="#overview">Overview</a><a href="#market-layer">Market layer</a><a href="#plan-and-portfolio">Plan and portfolio</a><a href="#runs">Runs</a><a href="#analysis-layer">Analysis layer</a><a href="#what-holds-it-together">What holds it together</a></nav><div class="legend"><span><b>||--||</b>exactly one</span><span><b>||--|{</b>one or more</span><span><b>||--o{</b>zero or more</span><span><b>}o--o{</b>many to many</span></div></header>
 <section id="overview"><div class="head"><span class="eyebrow">27 entities · 30 relationships</span><h2>Overview</h2><p>All 27 entities without their attributes. Each layer below repeats its part with attributes and the file or registry it lives in.</p></div><div class="diagram"><pre class="mermaid">
 erDiagram
     PARAMETER_SET ||--|{ TICKER : &quot;describes 27&quot;
@@ -152,7 +152,7 @@ erDiagram
     MARKET_REGIME ||--|{ REGIME_PARAMS : &quot;conditions transitions&quot;
     CORRELATION_MATRIX }|--|{ TICKER : &quot;rows and columns&quot;
 </pre></div></section>
-<section id="plan-portfolio-and-run"><div class="head"><span class="eyebrow">14 entities · 15 relationships</span><h2>Plan, portfolio and run</h2><p>Your facts come from <code>config/investor.json</code> and portfolios from <code>portfolio_templates.csv</code>. A run resolves them into strategies and writes one record to <code>output/runs/</code>.</p></div><div class="diagram"><pre class="mermaid">
+<section id="plan-and-portfolio"><div class="head"><span class="eyebrow">8 entities · 6 relationships</span><h2>Plan and portfolio</h2><p>Everything you edit: your facts in <code>config/investor.json</code> and the portfolio library in <code>portfolios/portfolio_templates.csv</code>. A strategy is a schedule of portfolios over age.</p></div><div class="diagram"><pre class="mermaid">
 erDiagram
     INVESTOR {
         int age &quot;config/investor.json&quot;
@@ -176,7 +176,7 @@ erDiagram
         float benefit_scale &quot;share of scheduled benefit assumed paid&quot;
     }
     PORTFOLIO {
-        string id PK &quot;portfolio_templates.csv row; archive.csv not runnable&quot;
+        string id PK &quot;templates CSV row; archive not runnable&quot;
         float bond_pct &quot;derived columns via compute_derived()&quot;
         float us_pct
         float dm_share
@@ -190,7 +190,7 @@ erDiagram
         float weight &quot;27 columns per row&quot;
     }
     STRATEGY {
-        string key PK &quot;e.g. 168&gt;168+30:bnd_only@60&gt;168@70 (montecarlo/glide.py)&quot;
+        string key PK &quot;e.g. 168&gt;168+30:bnd_only@60&gt;168@70, glide.py&quot;
     }
     WAYPOINT {
         string strategy_key FK
@@ -200,14 +200,16 @@ erDiagram
         string sleeve_fund &quot;bnd_only, stip_only, vgit_only...&quot;
         int from_age &quot;steps, never interpolated&quot;
     }
-    WITHDRAWAL_POLICY {
-        string policy PK &quot;constant_real, fixed_pct, guyton_klinger, vpw&quot;
-        string sourcing &quot;pro_rata, excess&quot;
-        float floor
-        string gk_response
-        int start_age
-        float target_real_annual
-    }
+
+    INVESTOR ||--|{ ACCOUNT : &quot;holds 5&quot;
+    INVESTOR ||--|| SOCIAL_SECURITY : &quot;claims&quot;
+    PORTFOLIO ||--|{ WEIGHT : &quot;sums to 1.0&quot;
+    WEIGHT }o--|| TICKER : &quot;of&quot;
+    STRATEGY ||--|{ WAYPOINT : &quot;steps through&quot;
+    WAYPOINT }o--|| PORTFOLIO : &quot;holds&quot;
+</pre></div></section>
+<section id="runs"><div class="head"><span class="eyebrow">8 entities · 9 relationships</span><h2>Runs</h2><p>What one run writes. A spec resolves into strategies, and the run records its results, a provenance snapshot and the spec itself to <code>output/runs/</code>.</p></div><div class="diagram"><pre class="mermaid">
+erDiagram
     RUN_SPEC {
         string mode &quot;config/runs.json last, or --spec&quot;
         list portfolios
@@ -219,6 +221,14 @@ erDiagram
         string compare_choice &quot;optional&quot;
         bool return_views &quot;optional&quot;
         map social_security &quot;optional override&quot;
+    }
+    WITHDRAWAL_POLICY {
+        string policy PK &quot;constant_real, fixed_pct, guyton_klinger, vpw&quot;
+        string sourcing &quot;pro_rata, excess&quot;
+        float floor
+        string gk_response
+        int start_age
+        float target_real_annual
     }
     RUN_RECORD {
         datetime timestamp PK &quot;output/runs/run_&lt;timestamp&gt;.json&quot;
@@ -260,12 +270,6 @@ erDiagram
         matrix returns &quot;27 wide, read by position&quot;
     }
 
-    INVESTOR ||--|{ ACCOUNT : &quot;holds 5&quot;
-    INVESTOR ||--|| SOCIAL_SECURITY : &quot;claims&quot;
-    PORTFOLIO ||--|{ WEIGHT : &quot;sums to 1.0&quot;
-    WEIGHT }o--|| TICKER : &quot;of&quot;
-    STRATEGY ||--|{ WAYPOINT : &quot;steps through&quot;
-    WAYPOINT }o--|| PORTFOLIO : &quot;holds&quot;
     RUN_SPEC ||--|{ STRATEGY : &quot;resolves to&quot;
     RUN_SPEC }o--|| WITHDRAWAL_POLICY : &quot;uses&quot;
     RUN_RECORD ||--|| RUN_SPEC : &quot;replays&quot;
@@ -279,7 +283,7 @@ erDiagram
 <section id="analysis-layer"><div class="head"><span class="eyebrow">9 entities · 7 relationships</span><h2>Analysis layer</h2><p>The tools that fan out to many evaluations. Sweep points are printed but not saved. Return-view scores are saved inside the run record.</p></div><div class="diagram"><pre class="mermaid">
 erDiagram
     SENSITIVITY_DIM {
-        string name PK &quot;tools/sensitivity.DIMENSIONS, 16&quot;
+        string name PK &quot;tools/sensitivity.DIMENSIONS, 24&quot;
         string group &quot;returns, cash, inflation, confidence, life, plan&quot;
         string kind &quot;numeric (has a span), named (no span)&quot;
         string env &quot;e.g. MC_PREMIUM_SCALE&quot;
@@ -319,9 +323,9 @@ erDiagram
     FINDING }o--o{ SWEEP_POINT : &quot;cites&quot;
 </pre></div></section>
 <section id="what-holds-it-together"><div class="head"><span class="eyebrow">4 points</span><h2>What holds it together</h2></div><div class="keys"><div class="key"><h3>MODEL_TICKERS is the root key</h3><p>Correlation order, CSV columns, JSON keys and the position of each random draw all follow it. <code>tools/check_consistency.py</code> checks that they agree.</p></div><div class="key"><h3>The strategy key is the glide</h3><p>A key such as <code>168&gt;168+30:bnd_only@60&gt;168@70</code> spells out the waypoints and also indexes <code>results</code>, so there is no separate glide table.</p></div><div class="key"><h3>Provenance copies, it does not reference</h3><p>The investor file and the parameters can change after a run. The record keeps the values that run used, which is how <code>run.py --diff</code> explains a change.</p></div><div class="key"><h3>Paths are never stored</h3><p>Pairing still rests on them. Every result in a run, and every return view, uses the same seeds and draws across all 27 tickers.</p></div></div></section>
-<footer>Source: <code>docs/ERD.md</code>. Built from the parameters JSON, <code>config/investor.json</code>, <code>portfolio_templates.csv</code> and <code>output/runs/</code> on 2026-10-25.</footer>
+<footer>Source: <code>docs/ERD.md</code>. Built from the parameters JSON, <code>config/investor.json</code>, <code>portfolios/portfolio_templates.csv</code> and <code>output/runs/</code> on 2026-11-01.</footer>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js" integrity="sha384-rbtjAdnIQE/aQJGEgXrVUlMibdfTSa4PQju4HDhN3sR2PmaKFzhEafuePsl9H/9I" crossorigin="anonymous"></script>
 <script>mermaid.initialize({startOnLoad: true, theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'});</script>
 </body>
 </html>

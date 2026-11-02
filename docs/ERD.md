@@ -1,7 +1,7 @@
 ---
-eyebrow: Monte Carlo Analysis · v3.4
+eyebrow: Monte Carlo Analysis · v3.5
 artifact: https://claude.ai/artifact/SMkPjJS5SbzD2s2RwBHe64
-footer: Built from the parameters JSON, `config/investor.json`, `portfolio_templates.csv` and `output/runs/` on 2026-10-25.
+footer: Built from the parameters JSON, `config/investor.json`, `portfolios/portfolio_templates.csv` and `output/runs/` on 2026-11-01.
 ---
 
 # Monte Carlo Data Map
@@ -125,11 +125,11 @@ erDiagram
     CORRELATION_MATRIX }|--|{ TICKER : "rows and columns"
 ```
 
-## Plan, portfolio and run
+## Plan and portfolio
 
-Your facts come from `config/investor.json` and portfolios from
-`portfolio_templates.csv`. A run resolves them into strategies and writes one
-record to `output/runs/`.
+Everything you edit: your facts in `config/investor.json` and the portfolio
+library in `portfolios/portfolio_templates.csv`. A strategy is a schedule of
+portfolios over age.
 
 ```mermaid
 erDiagram
@@ -155,7 +155,7 @@ erDiagram
         float benefit_scale "share of scheduled benefit assumed paid"
     }
     PORTFOLIO {
-        string id PK "portfolio_templates.csv row; archive.csv not runnable"
+        string id PK "templates CSV row; archive not runnable"
         float bond_pct "derived columns via compute_derived()"
         float us_pct
         float dm_share
@@ -169,7 +169,7 @@ erDiagram
         float weight "27 columns per row"
     }
     STRATEGY {
-        string key PK "e.g. 168>168+30:bnd_only@60>168@70 (montecarlo/glide.py)"
+        string key PK "e.g. 168>168+30:bnd_only@60>168@70, glide.py"
     }
     WAYPOINT {
         string strategy_key FK
@@ -179,14 +179,22 @@ erDiagram
         string sleeve_fund "bnd_only, stip_only, vgit_only..."
         int from_age "steps, never interpolated"
     }
-    WITHDRAWAL_POLICY {
-        string policy PK "constant_real, fixed_pct, guyton_klinger, vpw"
-        string sourcing "pro_rata, excess"
-        float floor
-        string gk_response
-        int start_age
-        float target_real_annual
-    }
+
+    INVESTOR ||--|{ ACCOUNT : "holds 5"
+    INVESTOR ||--|| SOCIAL_SECURITY : "claims"
+    PORTFOLIO ||--|{ WEIGHT : "sums to 1.0"
+    WEIGHT }o--|| TICKER : "of"
+    STRATEGY ||--|{ WAYPOINT : "steps through"
+    WAYPOINT }o--|| PORTFOLIO : "holds"
+```
+
+## Runs
+
+What one run writes. A spec resolves into strategies, and the run records
+its results, a provenance snapshot and the spec itself to `output/runs/`.
+
+```mermaid
+erDiagram
     RUN_SPEC {
         string mode "config/runs.json last, or --spec"
         list portfolios
@@ -198,6 +206,14 @@ erDiagram
         string compare_choice "optional"
         bool return_views "optional"
         map social_security "optional override"
+    }
+    WITHDRAWAL_POLICY {
+        string policy PK "constant_real, fixed_pct, guyton_klinger, vpw"
+        string sourcing "pro_rata, excess"
+        float floor
+        string gk_response
+        int start_age
+        float target_real_annual
     }
     RUN_RECORD {
         datetime timestamp PK "output/runs/run_<timestamp>.json"
@@ -239,12 +255,6 @@ erDiagram
         matrix returns "27 wide, read by position"
     }
 
-    INVESTOR ||--|{ ACCOUNT : "holds 5"
-    INVESTOR ||--|| SOCIAL_SECURITY : "claims"
-    PORTFOLIO ||--|{ WEIGHT : "sums to 1.0"
-    WEIGHT }o--|| TICKER : "of"
-    STRATEGY ||--|{ WAYPOINT : "steps through"
-    WAYPOINT }o--|| PORTFOLIO : "holds"
     RUN_SPEC ||--|{ STRATEGY : "resolves to"
     RUN_SPEC }o--|| WITHDRAWAL_POLICY : "uses"
     RUN_RECORD ||--|| RUN_SPEC : "replays"
@@ -264,7 +274,7 @@ saved. Return-view scores are saved inside the run record.
 ```mermaid
 erDiagram
     SENSITIVITY_DIM {
-        string name PK "tools/sensitivity.DIMENSIONS, 16"
+        string name PK "tools/sensitivity.DIMENSIONS, 24"
         string group "returns, cash, inflation, confidence, life, plan"
         string kind "numeric (has a span), named (no span)"
         string env "e.g. MC_PREMIUM_SCALE"

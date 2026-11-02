@@ -152,31 +152,40 @@ target, figures in `output/figures/`, and a JSON record in `output/runs/`.
 
 ### How many simulations?
 
-**2,000 is right, and 10,000 buys nothing.** Measured
-on a 5,000-path reference sample, resampled 400x at each size:
+**The default, 1,500 verification paths, settles any gap of about 5% or more;
+take 3,000 when a head-to-head comes back not resolved.** Measured 2026-11-01
+under `guyton_klinger` at one plan, on a 6,000-path reference sample resampled
+300 times at each size. At 3,000 each draw is half the reference sample, so its
+span is corrected for that and its 141-vs-140 share reads somewhat high:
 
-| n | 95% span of the median | 141 vs 140 | 141 vs derisked | 141 vs 145 |
+| paths | 95% span of the median | 141 vs 140 (gap 2%) | 141 vs derisked (7%) | 141 vs 145 (14%) |
 |---|---|---|---|---|
-| 250 | 36.7% | 6% | 30% | 96% |
-| 500 | 26.4% | 5% | 58% | 100% |
-| 1,000 | 19.7% | 6% | 83% | 100% |
-| **2,000** | **13.2%** | 10% | **98%** | 100% |
-| 4,000 | 9.3% | 11% | 100% | 100% |
+| 500 | 18.5% | 14% | 100% | 100% |
+| 1,000 | 13.1% | 51% | 100% | 100% |
+| **1,500** | **11.3%** | **79%** | 100% | 100% |
+| 3,000 | 7.1% | ~100% | 100% | 100% |
 
-The last three columns are the share of runs whose paired CI excludes zero.
-2,000 is where the derisking question reaches 98% power — that is the tightest
-real question the tool is asked, and it sets the floor.
+The last three columns are the share of runs whose paired interval excludes
+zero, and each gap is a share of the median. A difference of 5% or more
+resolves in every run even at 500 paths, because every strategy faces the same
+markets. A 2% difference resolves four times in five at 1,500, so a "not
+resolved" there is worth one re-run at 3,000, the runner's 2x option.
 
-Two things follow. **The headline median is imprecise at any feasible n**: at
-2,000 it is +/-6.6%, error falls as 1/sqrt(n), and +/-1% would need about
-87,000 paths. Quote two significant figures, never four. **And 141 vs 140 never
-resolves** — 10% at 2,000, 11% at 4,000 — because a gap of about 2% of the median
-is below the noise floor. At 2,000, 27% of runs show 140 ahead. That coin flip is real, which is
-why `best:` carries a caveat.
+Two things follow:
 
-Keep the ratio in view: sampling noise is +/-6.6%, while the factor-premium
-assumption alone moves lifetime spending 1.6x. Path count is the wrong uncertainty to
-optimise.
+- **The headline median is imprecise at any practical path count.** At 1,500
+  paths it is good to about ±5.5%, the error shrinks as 1/√n, and ±1% would
+  take about 48,000 paths. Quote two significant figures, never four.
+- **A solved plan level moves more than the median does.** On five
+  independent path sets, the solved level varied by about 6% (one standard
+  deviation) at both 1,500 and 3,000 verification paths; five sets are too few
+  to show the improvement 3,000 should bring. Never compare plan levels from
+  separate runs. That is why every comparison here reads all strategies at one
+  plan, on shared paths.
+
+Keep the scale in view: path noise is a few percent, while the factor-premium
+assumption alone moves lifetime spending 1.6x. Path count is the wrong
+uncertainty to optimise.
 
 **Outputs (allocations):** a median-wealth matrix, paired head-to-heads, a
 detail table carrying CAGR / volatility / max drawdown / Sortino, the
